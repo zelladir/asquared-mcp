@@ -2,7 +2,7 @@
 
 ## Reference deployment
 
-The reference deployment for `pfit-coord-mcp` is:
+The reference deployment for `asquared-mcp` is:
 
 - **Host:** Ubuntu 24 codeserver (always-on home-lab VM).
 - **Public exposure:** Cloudflare Tunnel to `https://mcp.asquaredhome.com`.

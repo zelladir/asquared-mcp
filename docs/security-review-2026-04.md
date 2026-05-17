@@ -1,5 +1,9 @@
 # Security & Protocol Review — pfit-coord-mcp
 
+> **Historical note:** this review was written when the project was named
+> `pfit-coord-mcp`. The active code now lives at `src/asquared_mcp/` after
+> the 2026-05-17 rename; the substantive findings still apply.
+
 **Date:** 2026-04-27  
 **Reviewer:** Codex 5.5 via PACKET-COORD-MCP-02  
 **Scope:** `main` at SHA `a585e6f2be0a7eb92dc7b947183fc2cff85a0c5c`; server, middleware, tools, store, CLI, docs, Docker, CI, tracked history.  

@@ -91,7 +91,7 @@ def _require_agent_id() -> str:
 def build_mcp(config: Config) -> FastMCP:
     """Build a FastMCP instance with the five coord_* tools registered."""
     mcp = FastMCP(
-        "pfit_coord_mcp",
+        "asquared_mcp",
         # OriginAllowlistMiddleware owns the host/origin policy so Claude Web's
         # hosted connector can use rotating Origin values through the tunnel.
         transport_security=TransportSecuritySettings(enable_dns_rebinding_protection=False),
@@ -292,7 +292,7 @@ def build_app(config: Config) -> Starlette:
 
 
 def main() -> None:
-    """Entry point used by `pfit-coord-mcp` script."""
+    """Entry point used by `asquared-mcp` script."""
     logging.basicConfig(
         level=os.environ.get("COORD_LOG_LEVEL", "INFO"),
         format="%(asctime)s %(levelname)s %(name)s: %(message)s",

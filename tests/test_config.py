@@ -6,7 +6,7 @@ import textwrap
 
 import pytest
 
-from pfit_coord_mcp.config import (
+from asquared_mcp.config import (
     Config, OAuthClientConfig, OAuthConfig, PushoverConfig, ServerConfig, load_config
 )
 

@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import sqlite3
 
-from pfit_coord_mcp.store import (
+from asquared_mcp.store import (
     ack_messages,
     close_thread,
     consume_auth_code,

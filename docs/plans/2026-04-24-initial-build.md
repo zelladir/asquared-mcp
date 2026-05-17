@@ -1,5 +1,10 @@
 <!-- markdownlint-disable MD032 MD031 MD010 -->
 <!--
+  HISTORICAL: this plan was written when the project was named pfit-coord-mcp.
+  Path references inside still use the old `src/pfit_coord_mcp/` form; the
+  active code lives at `src/asquared_mcp/` after the 2026-05-17 rename.
+  Preserved verbatim as a project record.
+
   MD032 (blanks-around-lists) and MD031 (blanks-around-fences): suppressed
   for this plan. The plan uses a checklist-of-checklists structure where
   every "- [ ] **Step N:**" item is immediately followed by a fenced code

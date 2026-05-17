@@ -1,8 +1,8 @@
 services:
   coord-mcp:
     build: .
-    image: pfit-coord-mcp:dev
-    container_name: pfit-coord-mcp
+    image: asquared-mcp:dev
+    container_name: asquared-mcp
     ports:
       # Open binding because deployment runs on a separate host (codeserver)
       # behind a reverse proxy. Bearer-token auth is the access control.

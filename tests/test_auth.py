@@ -9,13 +9,13 @@ from starlette.responses import JSONResponse
 from starlette.routing import Route
 from starlette.testclient import TestClient
 
-from pfit_coord_mcp.auth import (
+from asquared_mcp.auth import (
     AGENT_ID_STATE_KEY,
     BearerTokenMiddleware,
     OriginAllowlistMiddleware,
     OAUTH_PUBLIC_PATHS,
 )
-from pfit_coord_mcp.store import init_db, store_oauth_token
+from asquared_mcp.store import init_db, store_oauth_token
 
 
 def _build_app(token_map: dict[str, str], allowed_origins: list[str] | None = None):
@@ -71,7 +71,7 @@ def test_token_comparison_uses_compare_digest(monkeypatch):
         calls.append((a, b))
         return a == b
 
-    monkeypatch.setattr("pfit_coord_mcp.auth.secrets.compare_digest", fake_compare_digest)
+    monkeypatch.setattr("asquared_mcp.auth.secrets.compare_digest", fake_compare_digest)
     client = TestClient(_build_app({"abc": "claude-web"}))
     r = client.get("/echo", headers={"Authorization": "Bearer abc"})
     assert r.status_code == 200
@@ -92,7 +92,7 @@ def test_authorization_with_extra_spaces_rejected():
 
 def test_health_endpoint_bypasses_auth():
     """Requests to /health pass through both middlewares unauthenticated."""
-    from pfit_coord_mcp.auth import HEALTH_PATH
+    from asquared_mcp.auth import HEALTH_PATH
 
     async def health(request: Request) -> JSONResponse:
         return JSONResponse({"status": "ok"})

@@ -27,7 +27,7 @@ typecheck:
 	mypy src
 
 build:
-	docker build -t pfit-coord-mcp:dev .
+	docker build -t asquared-mcp:dev .
 
 tunnel:
 	cloudflared tunnel run pfit-coord

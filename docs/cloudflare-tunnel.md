@@ -8,6 +8,14 @@ This doc is for Alex to follow on the workstation that hosts the server.
 Verify each `cloudflared` command against `cloudflared --help` before running —
 flags shift between point releases.
 
+> **Note on naming:** the Cloudflare Tunnel itself is named `pfit-coord` in the
+> existing deployment. That's a Cloudflare-internal label (no end user sees it —
+> only the public hostname `mcp.asquaredhome.com` matters). The repo and Python
+> package were renamed to `asquared-mcp` / `asquared_mcp`, but the tunnel name
+> stays for the existing deployment to avoid a separate dashboard migration.
+> Fresh deployments may choose any tunnel name they like; just keep
+> `mcp.asquaredhome.com` (or your own subdomain) wired to it.
+
 ## Prerequisites
 
 - `cloudflared` CLI installed:

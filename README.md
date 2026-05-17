@@ -1,4 +1,4 @@
-# pfit-coord-mcp
+# asquared-mcp
 
 Coordination MCP server hosting a shared message queue between Claude Web,
 Claude Code, and Codex. STOP-AND-ASK and handoff-to-alex messages page Alex's
@@ -12,7 +12,7 @@ phone via Pushover.
                 └─────────────┘  │
                 ┌─────────────┐  │   bearer auth
                 │ Claude Code │ ─┼──────────────►  ┌──────────────────┐
-                └─────────────┘  │   streamable    │  pfit-coord-mcp  │
+                └─────────────┘  │   streamable    │  asquared-mcp  │
                 ┌─────────────┐  │     HTTP        │  (FastMCP +      │
                 │   Codex     │ ─┘                  │   SQLite + auth) │
                 └─────────────┘                     └────────┬─────────┘
@@ -50,8 +50,8 @@ Server-enforced notification rules:
 ## Quickstart (host)
 
 ```bash
-git clone https://github.com/zelladir/pfit-coord-mcp
-cd pfit-coord-mcp
+git clone https://github.com/zelladir/asquared-mcp
+cd asquared-mcp
 
 # 1. Generate three bearer tokens
 python -c "import secrets; print(secrets.token_urlsafe(32))"  # x3

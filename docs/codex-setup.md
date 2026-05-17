@@ -9,7 +9,7 @@ typically `~/.codex/mcp.json` or under `~/.config/codex/`.
 ```json
 {
   "mcpServers": {
-    "pfit-coord": {
+    "asquared": {
       "url": "https://mcp.asquaredhome.com/mcp",
       "headers": {
         "Authorization": "Bearer <CODEX_TOKEN>"

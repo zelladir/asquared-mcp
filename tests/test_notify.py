@@ -6,9 +6,9 @@ import json
 
 import pytest
 
-from pfit_coord_mcp.config import Config, PushoverConfig, ServerConfig
-from pfit_coord_mcp.notify import PUSHOVER_URL, maybe_notify, rule_matches
-from pfit_coord_mcp.store import get_message, post_message
+from asquared_mcp.config import Config, PushoverConfig, ServerConfig
+from asquared_mcp.notify import PUSHOVER_URL, maybe_notify, rule_matches
+from asquared_mcp.store import get_message, post_message
 
 
 @pytest.fixture
@@ -185,7 +185,7 @@ async def test_maybe_notify_treats_status_zero_as_failure(
 
 @pytest.mark.asyncio
 async def test_format_body_truncates_at_1024_chars():
-    from pfit_coord_mcp.notify import _format_body
+    from asquared_mcp.notify import _format_body
 
     long = json.dumps({"text": "x" * 2000})
     out = _format_body(long)
@@ -195,14 +195,14 @@ async def test_format_body_truncates_at_1024_chars():
 
 @pytest.mark.asyncio
 async def test_format_body_prefers_text_field():
-    from pfit_coord_mcp.notify import _format_body
+    from asquared_mcp.notify import _format_body
 
     out = _format_body(json.dumps({"text": "hello", "extra": "ignored"}))
     assert out == "hello"
 
 
 def test_format_body_handles_non_dict_payload():
-    from pfit_coord_mcp.notify import _format_body
+    from asquared_mcp.notify import _format_body
 
     out = _format_body(json.dumps(["a", "b", "c"]))
     # falls through to json.dumps with indent
@@ -211,7 +211,7 @@ def test_format_body_handles_non_dict_payload():
 
 
 def test_format_body_handles_invalid_json_payload():
-    from pfit_coord_mcp.notify import _format_body
+    from asquared_mcp.notify import _format_body
 
     out = _format_body("not-json-at-all")
     assert out == "not-json-at-all"

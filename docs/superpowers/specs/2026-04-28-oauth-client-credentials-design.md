@@ -1,5 +1,9 @@
 # OAuth 2.0 Client Credentials Design
 
+**Historical note:** path references inside this spec use the pre-rename form
+`src/pfit_coord_mcp/`. The active code lives at `src/asquared_mcp/` after the
+2026-05-17 rename.
+
 **Packet:** PACKET-COORD-MCP-04  
 **Date:** 2026-04-28  
 **Status:** Approved for implementation

@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from pfit_coord_mcp.config import Config, PushoverConfig, ServerConfig
-from pfit_coord_mcp.store import init_db
+from asquared_mcp.config import Config, PushoverConfig, ServerConfig
+from asquared_mcp.store import init_db
 
 
 @pytest.fixture

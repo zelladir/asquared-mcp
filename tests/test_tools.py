@@ -8,7 +8,7 @@ import pytest
 from pydantic import ValidationError
 from starlette.testclient import TestClient
 
-from pfit_coord_mcp.models import (
+from asquared_mcp.models import (
     MAX_PAYLOAD_BYTES,
     CoordAckInput,
     CoordPostInput,
@@ -16,8 +16,8 @@ from pfit_coord_mcp.models import (
     CoordStatusInput,
     CoordThreadsInput,
 )
-from pfit_coord_mcp.server import _current_agent, build_app, build_mcp
-from pfit_coord_mcp.store import get_message
+from asquared_mcp.server import _current_agent, build_app, build_mcp
+from asquared_mcp.store import get_message
 
 
 @pytest.fixture

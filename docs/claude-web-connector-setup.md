@@ -6,7 +6,7 @@ Claude Web (claude.ai) supports custom remote MCP connectors via your account se
 
 1. In Claude Web, navigate to **Settings → Connectors → Add Custom Connector**.
 2. Fill in:
-   - **Name:** `pfit-coord`
+   - **Name:** `asquared`
    - **URL:** `https://mcp.asquaredhome.com/mcp`
    - **Authentication:** Bearer token
    - **Token:** `<CLAUDE_WEB_TOKEN>` (from `config.toml`)
@@ -17,7 +17,7 @@ Claude Web (claude.ai) supports custom remote MCP connectors via your account se
 
 Start a new chat:
 
-> **You:** What tools do you have available from pfit-coord?
+> **You:** What tools do you have available from asquared?
 
 Expected: `coord_post`, `coord_read`, `coord_threads`, `coord_ack`, `coord_status`.
 

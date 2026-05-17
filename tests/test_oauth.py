@@ -9,9 +9,9 @@ import secrets
 import pytest
 from starlette.testclient import TestClient
 
-from pfit_coord_mcp.config import Config, OAuthClientConfig, OAuthConfig, PushoverConfig, ServerConfig
-from pfit_coord_mcp.server import build_app
-from pfit_coord_mcp.store import init_db
+from asquared_mcp.config import Config, OAuthClientConfig, OAuthConfig, PushoverConfig, ServerConfig
+from asquared_mcp.server import build_app
+from asquared_mcp.store import init_db
 
 
 @pytest.fixture

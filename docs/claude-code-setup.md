@@ -8,7 +8,7 @@ In your Claude Code MCP config (typical paths: `~/.claude/mcp.json` on macOS/Lin
 ```json
 {
   "mcpServers": {
-    "pfit-coord": {
+    "asquared": {
       "url": "https://mcp.asquaredhome.com/mcp",
       "headers": {
         "Authorization": "Bearer <CLAUDE_CODE_TOKEN>"
@@ -25,7 +25,7 @@ mapped to `claude-code`.
 
 In a Claude Code session:
 
-> **You:** What MCP tools do you have available from pfit-coord?
+> **You:** What MCP tools do you have available from asquared?
 
 Expected: `coord_post`, `coord_read`, `coord_threads`, `coord_ack`, `coord_status`.
 

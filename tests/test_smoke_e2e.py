@@ -6,15 +6,15 @@ from __future__ import annotations
 import pytest
 from starlette.testclient import TestClient
 
-from pfit_coord_mcp.config import Config, PushoverConfig, ServerConfig
-from pfit_coord_mcp.models import (
+from asquared_mcp.config import Config, PushoverConfig, ServerConfig
+from asquared_mcp.models import (
     CoordAckInput,
     CoordPostInput,
     CoordReadInput,
 )
-from pfit_coord_mcp.notify import PUSHOVER_URL
-from pfit_coord_mcp.server import _current_agent, build_app, build_mcp
-from pfit_coord_mcp.store import init_db
+from asquared_mcp.notify import PUSHOVER_URL
+from asquared_mcp.server import _current_agent, build_app, build_mcp
+from asquared_mcp.store import init_db
 
 
 @pytest.fixture

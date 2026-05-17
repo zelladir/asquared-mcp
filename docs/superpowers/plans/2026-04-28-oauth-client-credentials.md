@@ -1,5 +1,10 @@
 # OAuth Client Credentials Implementation Plan
 
+**Historical note:** path references inside this plan use the pre-rename form
+`src/pfit_coord_mcp/`. The active code lives at `src/asquared_mcp/` after the
+2026-05-17 rename. The plan was executed as written and is preserved here as
+a project record.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Add OAuth 2.0 client credentials support so hosted AI connectors (Claude Web, ChatGPT, Gemini) can authenticate against the MCP server without breaking existing static Bearer token auth for Claude Code and Codex.

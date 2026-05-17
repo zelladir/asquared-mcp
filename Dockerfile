@@ -20,4 +20,4 @@ EXPOSE 8765
 
 # Bind 0.0.0.0 inside the container; docker-compose maps the host port to 127.0.0.1
 # so the host-side socket is not internet-reachable. cloudflared connects via loopback.
-CMD ["python", "-m", "pfit_coord_mcp.server"]
+CMD ["python", "-m", "asquared_mcp.server"]
