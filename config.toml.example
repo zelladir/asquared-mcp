@@ -43,3 +43,23 @@ token_ttl_seconds = 86400
 # Then paste the client_id and secret into the connector's OAuth settings in its UI.
 # [oauth.clients]
 # "REPLACE_WITH_CLIENT_ID" = { secret = "REPLACE_WITH_CLIENT_SECRET", agent_id = "claude-web" }
+
+[home_inventory]
+# Optional. Wires the inventory_* tool family into this server. Leave
+# blank to disable (server runs coord-only).
+#
+# base_url should be the server-to-server route on the home-inventory
+# deployment that bypasses oauth2-proxy and validates a bearer against
+# the api's mcp_tokens table. In the WIKI VM deployment that's:
+#   http://10.0.0.230/mcp-api      (LAN, codeserver -> WIKI via Tailscale)
+#   https://inventory.asquaredhome.com/mcp-api  (over the Cloudflare Tunnel)
+#
+# token is a scoped MCP bearer minted via:
+#   curl -sS -H 'X-Forwarded-Email: alex@asquaredhome.com' \
+#     -H 'Content-Type: application/json' \
+#     -d '{"name":"asquared-mcp","scopes":["read:items","read:locations","read:documents"]}' \
+#     http://127.0.0.1:8094/auth/mcp-tokens
+# (run from the WIKI host shell, where loopback proxy headers are trusted)
+base_url = ""
+token = ""
+timeout_seconds = 20.0
