@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import contextlib
 import json
 import logging
 import os
 import sqlite3
 from contextvars import ContextVar
+from pathlib import Path
 from typing import Any
 
 import uvicorn
@@ -28,6 +30,8 @@ from .auth import (
     OriginAllowlistMiddleware,
 )
 from .config import Config, load_config
+from .inventory_client import InventoryClient
+from .inventory_tools import register_inventory_tools
 from .oauth import build_oauth_routes
 from .models import (
     CoordAckInput,
@@ -46,6 +50,86 @@ from .store import (
     post_message,
     read_messages,
 )
+
+
+SERVER_INSTRUCTIONS = """\
+ASquaredMCP — coordination + home-inventory tools for the asquaredhome.com homelab.
+
+Two tool families share this server:
+
+- coord_* : inter-agent coordination across Claude Web, Claude Code, Codex.
+  Use coord_post to message another agent; coord_read to pick up your queue;
+  coord_threads to scope work; coord_ack to mark messages read; coord_status
+  for lightweight broadcast heartbeats.
+
+- inventory_* : read-only access to the home-inventory app (rooms, items,
+  photos, documents, floor plans). Use inventory_list_locations to find a
+  place by name, inventory_list_location_items to see what's there,
+  inventory_search_items for free-text catalog search, inventory_get_item
+  for full detail on one row, and inventory_get_location_map for floor
+  plans with marker coordinates. May be absent on deployments without
+  home-inventory configured.
+
+For a fuller overview, read the resource at docs://asquared-mcp/readme.
+"""
+
+
+SERVER_README = """\
+# ASquaredMCP
+
+Coordination + home-inventory MCP server hosted at
+`https://mcp.asquaredhome.com`. Bearer-token auth; one bearer per agent.
+
+## Tool families
+
+### coord_* — inter-agent coordination
+
+- `coord_post` — post a message addressed to another agent (or `broadcast`).
+  Kinds: `stop_and_ask` (high-priority Pushover), `handoff` / `task_complete`
+  / `question` (normal-priority push when addressed to `alex`), `status` /
+  `note` / `answer` (no push).
+- `coord_read` — read the queue. `since_id` polls for new; `thread_id`
+  scopes to a thread; `unread_only` skips already-acked messages.
+- `coord_threads` — create / list / close coordination threads.
+- `coord_ack` — mark messages read by your agent.
+- `coord_status` — broadcast a lightweight heartbeat (no notification).
+
+### inventory_* — home-inventory read access
+
+- `inventory_search_items` — full-text search the item catalog.
+- `inventory_get_item` — fetch one item by UUID or HI-XXXX reference id.
+- `inventory_list_locations` — enumerate Locations (floors, rooms, racks).
+- `inventory_list_location_items` — items physically in a Location.
+- `inventory_get_location_map` — floor-plan map with marker coordinates.
+
+The inventory family is read-only in v1. Writes (`create_item`, etc.)
+live behind a future opt-in flag.
+
+## Auth
+
+Static bearer tokens keyed to agent ids (`claude-web`, `claude-code`,
+`codex`) in the server config. OAuth client-credentials flow available
+for hosted connectors (Claude Web's MCP connector, ChatGPT, etc.); see
+the OAuth discovery endpoints under `/.well-known/`.
+
+## Out of band
+
+- Pushover for high-priority pages.
+- Home-inventory API at `https://inventory.asquaredhome.com/mcp-api/*`
+  (server-to-server bearer route bypassing oauth2-proxy).
+"""
+
+
+def _server_readme_text() -> str:
+    """README content exposed as an MCP resource.
+
+    Returns the in-repo SERVER_README constant so the resource lives
+    inside the binary and survives container rebuilds without a volume
+    mount. An external README.md at the repo root may diverge over time
+    — this constant is the one the LLM sees.
+    """
+
+    return SERVER_README
 
 logger = logging.getLogger(__name__)
 
@@ -88,14 +172,42 @@ def _require_agent_id() -> str:
     return aid
 
 
-def build_mcp(config: Config) -> FastMCP:
-    """Build a FastMCP instance with the five coord_* tools registered."""
+def build_mcp(
+    config: Config,
+    *,
+    inventory_client: InventoryClient | None = None,
+) -> FastMCP:
+    """Build a FastMCP instance with the coord_* (and optionally inventory_*) tools.
+
+    ``inventory_client`` is the dependency seam for tests: production
+    callers leave it None and ``build_app`` constructs one from
+    ``config.home_inventory``; tests inject a transport-stubbed client.
+    """
+
     mcp = FastMCP(
         "asquared_mcp",
+        # MCP spec 2025-06-18 InitializeResult.instructions: the client
+        # forwards this string to the LLM as system context so the model
+        # can pick the right tool family up front.
+        instructions=SERVER_INSTRUCTIONS,
         # OriginAllowlistMiddleware owns the host/origin policy so Claude Web's
         # hosted connector can use rotating Origin values through the tunnel.
         transport_security=TransportSecuritySettings(enable_dns_rebinding_protection=False),
     )
+
+    @mcp.resource(
+        "docs://asquared-mcp/readme",
+        name="server_readme",
+        title="ASquaredMCP server overview",
+        description=(
+            "Capability overview for ASquaredMCP — both tool families, "
+            "auth posture, and out-of-band integrations. Audience: humans + "
+            "agents needing more than the initialize instructions provide."
+        ),
+        mime_type="text/markdown",
+    )
+    async def server_readme() -> str:
+        return _server_readme_text()
 
     @mcp.tool(
         name="coord_post",
@@ -248,6 +360,12 @@ def build_mcp(config: Config) -> FastMCP:
         )
         return {"message_id": msg_id, "from_agent": from_agent}
 
+    # Register inventory_* family only when home-inventory is wired up.
+    # Deployments that don't run home-inventory keep a working coord-only
+    # server; deployments that do get five extra read-only tools.
+    if inventory_client is not None:
+        register_inventory_tools(mcp, inventory_client)
+
     return mcp
 
 
@@ -270,11 +388,41 @@ async def health(_request: Request) -> JSONResponse:
     return JSONResponse({"status": "ok", "version": __version__})
 
 
+def _build_inventory_client(config: Config) -> InventoryClient | None:
+    """Construct an InventoryClient if [home_inventory] is configured.
+
+    Returns None when ``base_url`` or ``token`` is blank, in which case
+    build_mcp skips registering the inventory tool family entirely.
+    """
+
+    hi = config.home_inventory
+    if not hi.base_url or not hi.token:
+        return None
+    return InventoryClient(
+        base_url=hi.base_url,
+        token=hi.token,
+        timeout_seconds=hi.timeout_seconds,
+    )
+
+
 def build_app(config: Config) -> Starlette:
     """Compose Starlette app: /health unauthenticated; /mcp wrapped in middleware."""
     init_db(config.server.db_path)
-    mcp = build_mcp(config)
+    inventory_client = _build_inventory_client(config)
+    mcp = build_mcp(config, inventory_client=inventory_client)
     mcp_asgi: ASGIApp = mcp.streamable_http_app()
+
+    @contextlib.asynccontextmanager
+    async def _lifespan(_app: Starlette):
+        # The session manager owns the streamable-HTTP transport. Combine
+        # it with the inventory client's aclose() so an httpx pool isn't
+        # leaked across reloads.
+        async with mcp.session_manager.run():
+            try:
+                yield
+            finally:
+                if inventory_client is not None:
+                    await inventory_client.aclose()
 
     return Starlette(
         routes=[
@@ -287,7 +435,7 @@ def build_app(config: Config) -> Starlette:
             Middleware(BearerTokenMiddleware, token_map=config.tokens, db_path=config.server.db_path),
             Middleware(AgentContextMiddleware),
         ],
-        lifespan=lambda app: mcp.session_manager.run(),
+        lifespan=_lifespan,
     )
 
 

@@ -31,12 +31,27 @@ class OAuthConfig(BaseModel):
     clients: dict[str, OAuthClientConfig] = Field(default_factory=dict)
 
 
+class HomeInventoryConfig(BaseModel):
+    """Config block for the home-inventory tool family.
+
+    Leaving ``base_url`` blank (the default) disables the inventory
+    tools entirely — ``build_mcp`` only registers ``inventory_*`` when
+    a base_url + token are both set. That keeps the server runnable for
+    coord-only deployments without faking inventory connectivity.
+    """
+
+    base_url: str = ""
+    token: str = ""
+    timeout_seconds: float = 20.0
+
+
 class Config(BaseModel):
     server: ServerConfig = Field(default_factory=ServerConfig)
     tokens: dict[str, str] = Field(default_factory=dict)
     pushover: PushoverConfig = Field(default_factory=PushoverConfig)
     allowed_origins: list[str] = Field(default_factory=list)
     oauth: OAuthConfig = Field(default_factory=OAuthConfig)
+    home_inventory: HomeInventoryConfig = Field(default_factory=HomeInventoryConfig)
 
     @field_validator("tokens")
     @classmethod
@@ -79,4 +94,5 @@ def load_config(path: str | Path) -> Config:
         pushover=PushoverConfig(**raw.get("pushover", {})),
         allowed_origins=raw.get("security", {}).get("allowed_origins", []),
         oauth=OAuthConfig(clients=oauth_clients, **oauth_raw_clean),
+        home_inventory=HomeInventoryConfig(**raw.get("home_inventory", {})),
     )
